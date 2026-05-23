@@ -10,5 +10,4 @@ export const transporter = nodemailer.createTransport({
 });
 
 export const FROM_ADDRESS = process.env.SMTP_FROM ?? "noreply@example.com";
-export const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+export const APP_URL = "http://localhost:3000";

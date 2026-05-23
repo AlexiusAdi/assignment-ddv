@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { SubscriptionBodySchema } from "@/lib/schemas";
+import { ArticlePublishedEventSchema } from "@/lib/schemas";
 
-type Status = "idle" | "loading" | "success" | "already" | "error";
+type Status = "idle" | "loading" | "success" | "error";
 
-export default function SubscribeForm() {
-  const [authorUsername, setAuthorUsername] = useState("");
-  const [subsEmail, setSubsEmail] = useState("");
+export default function PublishForm() {
+  const [author, setAuthor] = useState("");
+  const [title, setTitle] = useState("");
+  const [articleUrl, setArticleUrl] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
 
@@ -15,10 +16,11 @@ export default function SubscribeForm() {
     e.preventDefault();
     setMessage("");
 
-    // Client-side validation with Zod
-    const result = SubscriptionBodySchema.safeParse({
-      author_username: authorUsername,
-      subs_email: subsEmail,
+    const result = ArticlePublishedEventSchema.safeParse({
+      author,
+      action: "publish",
+      title,
+      ...(articleUrl ? { article_url: articleUrl } : {}),
     });
 
     if (!result.success) {
@@ -32,23 +34,22 @@ export default function SubscribeForm() {
     setStatus("loading");
 
     try {
-      const res = await fetch("/api/subscription", {
+      const res = await fetch("/api/publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(result.data),
       });
 
-      const data = await res.json();
-
-      if (res.status === 201) {
+      if (res.ok) {
         setStatus("success");
-        setMessage("You're subscribed! You'll get notified when they publish.");
-        setAuthorUsername("");
-        setSubsEmail("");
-      } else if (res.status === 200) {
-        setStatus("already");
-        setMessage("You're already subscribed to this author.");
+        setMessage(
+          "Publish event fired! Subscribers will receive an email shortly.",
+        );
+        setAuthor("");
+        setTitle("");
+        setArticleUrl("");
       } else {
+        const data = await res.json();
         setStatus("error");
         setMessage(data.error ?? "Something went wrong.");
       }
@@ -62,26 +63,30 @@ export default function SubscribeForm() {
     idle: "",
     loading: "text-zinc-400",
     success: "text-emerald-400",
-    already: "text-amber-400",
     error: "text-red-400",
   };
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
+      <p>
+        Simulates the &quot;already running system&quot; firing a publish event
+        to Kafka. All subscribers of this author will receive an email.
+      </p>
+
       <div className="space-y-3">
         <div>
           <label
-            htmlFor="author_username"
-            className="block text-xs font-medium tracking-widest text-zinc-500 uppercase mb-2"
+            htmlFor="author"
+            className="block text-xs font-medium tracking-widestuppercase mb-2"
           >
             Author Username
           </label>
           <input
-            id="author_username"
+            id="author"
             type="text"
             required
-            value={authorUsername}
-            onChange={(e) => setAuthorUsername(e.target.value)}
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
             placeholder="e.g. johndoe"
             className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
           />
@@ -89,18 +94,35 @@ export default function SubscribeForm() {
 
         <div>
           <label
-            htmlFor="subs_email"
-            className="block text-xs font-medium tracking-widest text-zinc-500 uppercase mb-2"
+            htmlFor="title"
+            className="block text-xs font-medium tracking-widest uppercase mb-2"
           >
-            Your Email
+            Article Title
           </label>
           <input
-            id="subs_email"
-            type="email"
+            id="title"
+            type="text"
             required
-            value={subsEmail}
-            onChange={(e) => setSubsEmail(e.target.value)}
-            placeholder="you@example.com"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. My First Article"
+            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="article_url"
+            className="block text-xs font-medium tracking-widest uppercase mb-2"
+          >
+            Article URL <span className=" normal-case">(optional)</span>
+          </label>
+          <input
+            id="article_url"
+            type="url"
+            value={articleUrl}
+            onChange={(e) => setArticleUrl(e.target.value)}
+            placeholder="https://example.com/my-article"
             className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
           />
         </div>
@@ -111,7 +133,7 @@ export default function SubscribeForm() {
         disabled={status === "loading"}
         className="w-full bg-white text-black text-sm font-semibold py-3 rounded-lg hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        {status === "loading" ? "Subscribing..." : "Subscribe"}
+        {status === "loading" ? "Publishing..." : "Simulate Publish"}
       </button>
 
       {message && (

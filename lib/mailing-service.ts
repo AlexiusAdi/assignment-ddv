@@ -12,10 +12,7 @@ export async function processArticlePublishedEvent(
   const result = ArticlePublishedEventSchema.safeParse(parsed);
 
   if (!result.success) {
-    console.warn(
-      "[mailing-service] Invalid event payload:",
-      result.error.flatten(),
-    );
+    console.warn("[mailing-service] Invalid event payload:", result.error);
     return;
   }
 
@@ -27,8 +24,7 @@ export async function processArticlePublishedEvent(
   const { data: subscribers, error } = await supabase
     .from("subscriptions")
     .select("*")
-    .eq("author_username", event.author)
-    .returns<Subscription[]>();
+    .eq("author_username", event.author);
 
   if (error) {
     console.error(

@@ -28,7 +28,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const { author_username, subs_email } = result.data;
 
-  // 3. Check existing subscription (idempotent)
   const { data: existing } = await supabase
     .from("subscriptions")
     .select("id")
@@ -43,7 +42,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
   }
 
-  // 4. Insert
   const unsubscribe_token = randomUUID();
 
   const { error } = await supabase.from("subscriptions").insert({

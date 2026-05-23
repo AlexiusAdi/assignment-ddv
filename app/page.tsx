@@ -1,21 +1,14 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SubscribeForm from "./components/SubscribeForm";
-import PublishForm from "./components/PublishForm";
+import SubscribeForm from "../components/SubscribeForm";
+import PublishForm from "../components/PublishForm";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        {/* Header */}
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs text-zinc-400 tracking-wide">
-              Article Notifications
-            </span>
-          </div>
           <h1 className="text-3xl font-bold tracking-tight mb-3">
-            Stay in the loop.
+            Article Notifications
           </h1>
           <p className="text-zinc-500 text-sm leading-relaxed">
             Subscribe to your favorite authors and get notified the moment they
@@ -23,7 +16,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Tabs */}
         <Tabs defaultValue="subscribe">
           <TabsList className="w-full mb-4 bg-zinc-900 border border-zinc-800">
             <TabsTrigger
@@ -53,8 +45,7 @@ export default function Home() {
           </TabsContent>
         </Tabs>
 
-        {/* Footer */}
-        <p className="text-center text-xs text-zinc-700 mt-6">
+        <p className="text-center  mt-6">
           You can unsubscribe anytime from the email.
         </p>
       </div>
