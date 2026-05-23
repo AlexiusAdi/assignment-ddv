@@ -11,8 +11,8 @@
 ### 1. Clone and install
 
 ```bash
-git clone <repo-url>
-cd <repo-name>
+git clone <https://github.com/AlexiusAdi/assignment-ddv>
+cd <assginment-ddv>
 pnpm install
 ```
 
@@ -20,28 +20,7 @@ pnpm install
 
 Create `.env` and `.env.local` in the project root with the same content:
 
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-
-# Kafka
-KAFKA_BROKERS=localhost:9092
-KAFKA_TOPIC=article.published
-KAFKA_GROUP_ID=mailing-service
-
-# Gmail SMTP
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your@gmail.com
-SMTP_PASS=your_gmail_app_password
-SMTP_FROM=your@gmail.com
-
-# App
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-> For Gmail, enable 2-Step Verification then generate an App Password at [myaccount.google.com](https://myaccount.google.com) → Security → App Passwords.
+I provide you with my .env
 
 ### 4. Start Kafka
 
