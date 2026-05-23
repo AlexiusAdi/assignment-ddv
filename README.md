@@ -20,7 +20,7 @@ pnpm install
 
 Create `.env` and `.env.local` in the project root with the same content:
 
-I provide you with my .env
+The .env file is not committed to the repository for security reasons. I will provide it separately via email as requested.
 
 ### 4. Start Kafka
 
