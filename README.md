@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Tech Stack
 
-## Getting Started
+- **Supabase** — stores subscriptions
+- **Kafka** (Docker) — message broker
+- **KafkaJS** — Kafka client
+- **Nodemailer** — sends emails
+- **Zod** — validation
 
-First, run the development server:
+## Setup
+
+### 1. Clone and install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repo-url>
+cd <repo-name>
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create `.env` and `.env.local` in the project root with the same content:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
-## Learn More
+# Kafka
+KAFKA_BROKERS=localhost:9092
+KAFKA_TOPIC=article.published
+KAFKA_GROUP_ID=mailing-service
 
-To learn more about Next.js, take a look at the following resources:
+# Gmail SMTP
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your@gmail.com
+SMTP_PASS=your_gmail_app_password
+SMTP_FROM=your@gmail.com
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> For Gmail, enable 2-Step Verification then generate an App Password at [myaccount.google.com](https://myaccount.google.com) → Security → App Passwords.
 
-## Deploy on Vercel
+### 4. Start Kafka
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+docker-compose up -d
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Wait about 20 seconds for Kafka to fully start.
+
+## Running
+
+Open **2 terminals**:
+
+**Terminal 1 — Next.js API server:**
+
+```bash
+pnpm run dev
+```
+
+**Terminal 2 — Mailing service (Kafka consumer):**
+
+```bash
+pnpm kafka:consumer
+```
+
+Open http://localhost:3000 in your browser.
+
+## Usage
+
+### Subscribe tab
+
+Enter an author username and your email address to subscribe to that author's updates.
+
+### Simulate Publish tab
+
+Enter the same author username and an article title to simulate a publish event. All subscribers of that author will receive an email notification.
+
+### Unsubscribe
+
+Every notification email contains an unsubscribe link at the bottom. Clicking it removes your subscription and shows a confirmation page.
+
+## API Endpoints
+
+### POST /api/subscription
+
+Subscribe an email to an author's updates.
+
+**Body:**
+
+```json
+{
+  "author_username": "johndoe",
+  "subs_email": "reader@example.com"
+}
+```
+
+**Responses:**
+
+- `201` — Subscribed successfully
+- `200` — Already subscribed
+- `422` — Validation failed
+- `500` — Server error
+
+### POST /api/publish
+
+Fires a publish event to Kafka (simulates the already running system).
+
+**Body:**
+
+```json
+{
+  "author": "johndoe",
+  "title": "My New Article",
+  "article_url": "https://example.com/my-article"
+}
+```
